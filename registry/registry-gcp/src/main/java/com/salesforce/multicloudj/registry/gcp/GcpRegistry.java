@@ -12,6 +12,8 @@ import com.salesforce.multicloudj.common.gcp.CommonErrorCodeMapping;
 import com.salesforce.multicloudj.common.gcp.GcpConstants;
 import com.salesforce.multicloudj.common.gcp.GcpCredentialsProvider;
 import com.salesforce.multicloudj.registry.driver.AbstractRegistry;
+import com.salesforce.multicloudj.registry.driver.AuthChallenge;
+import com.salesforce.multicloudj.registry.driver.BearerTokenExchange;
 import com.salesforce.multicloudj.registry.driver.OciHttpTransport;
 import java.io.IOException;
 import java.util.Collections;
@@ -29,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 @AutoService(AbstractRegistry.class)
 public class GcpRegistry extends AbstractRegistry {
 
-  private static final String GCP_AUTH_USERNAME = "oauth2accesstoken";
   private static final String CLOUD_PLATFORM_SCOPE =
       "https://www.googleapis.com/auth/cloud-platform";
 
@@ -62,12 +63,14 @@ public class GcpRegistry extends AbstractRegistry {
   }
 
   @Override
-  public String getAuthUsername() {
-    return GCP_AUTH_USERNAME;
+  public String getAuthorizationHeader(
+      AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange) {
+    String identityToken = getAuthToken();
+    String bearerToken = tokenExchange.getBearerToken(challenge, identityToken, repository, "pull");
+    return "Bearer " + bearerToken;
   }
 
-  @Override
-  public String getAuthToken() {
+  String getAuthToken() {
     GoogleCredentials creds = getOrCreateCredentials();
 
     AccessToken accessToken = creds.getAccessToken();

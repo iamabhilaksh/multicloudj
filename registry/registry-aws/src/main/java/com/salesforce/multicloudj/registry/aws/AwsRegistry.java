@@ -8,6 +8,8 @@ import com.salesforce.multicloudj.common.exceptions.InvalidArgumentException;
 import com.salesforce.multicloudj.common.exceptions.SubstrateSdkException;
 import com.salesforce.multicloudj.common.exceptions.UnknownException;
 import com.salesforce.multicloudj.registry.driver.AbstractRegistry;
+import com.salesforce.multicloudj.registry.driver.AuthChallenge;
+import com.salesforce.multicloudj.registry.driver.BearerTokenExchange;
 import com.salesforce.multicloudj.registry.driver.OciHttpTransport;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -82,12 +84,15 @@ public class AwsRegistry extends AbstractRegistry {
   }
 
   @Override
-  public String getAuthUsername() {
-    return AWS_AUTH_USERNAME;
+  public String getAuthorizationHeader(
+      AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange) {
+    String credentials = AWS_AUTH_USERNAME + ":" + getAuthToken();
+    String encoded =
+        Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+    return "Basic " + encoded;
   }
 
-  @Override
-  public String getAuthToken() {
+  String getAuthToken() {
     if (cachedAuthToken == null || isPastRefreshPoint()) {
       synchronized (tokenLock) {
         if (cachedAuthToken == null || isPastRefreshPoint()) {

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -17,6 +18,9 @@ import com.salesforce.multicloudj.common.exceptions.InvalidArgumentException;
 import com.salesforce.multicloudj.common.exceptions.SubstrateSdkException;
 import com.salesforce.multicloudj.common.exceptions.UnAuthorizedException;
 import com.salesforce.multicloudj.common.exceptions.UnknownException;
+import com.salesforce.multicloudj.registry.driver.AuthChallenge;
+import com.salesforce.multicloudj.registry.driver.BearerTokenExchange;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
@@ -106,7 +110,6 @@ class AwsRegistryTest {
     withMockedRegistry(
         registry -> {
           assertEquals(PROVIDER_ID, registry.getProviderId());
-          assertEquals(AUTH_USERNAME, registry.getAuthUsername());
           assertNotNull(registry.getOciTransport());
         });
   }
@@ -167,6 +170,32 @@ class AwsRegistryTest {
   void testGetOciTransport_ReturnsNull_WhenNoEndpoint() {
     AwsRegistry registry = new AwsRegistry();
     assertNull(registry.getOciTransport());
+  }
+
+  @Test
+  void testGetAuthorizationHeader_ReturnsValidBasicHeader() throws Exception {
+    String expectedToken = "my-ecr-password";
+    EcrClient mockEcrClient = mock(EcrClient.class);
+    when(mockEcrClient.getAuthorizationToken(any(GetAuthorizationTokenRequest.class)))
+        .thenReturn(
+            tokenResponse(
+                authDataWithExpiry(
+                    expectedToken, Instant.now().plusSeconds(TOKEN_VALIDITY_SECONDS))));
+
+    try (AwsRegistry registry = createRegistryWithMockEcrClient(mockEcrClient)) {
+      AuthChallenge challenge = AuthChallenge.parse("Basic realm=\"ecr\"");
+      BearerTokenExchange tokenExchange = mock(BearerTokenExchange.class);
+
+      String header = registry.getAuthorizationHeader(challenge, "my-repo", tokenExchange);
+
+      assertNotNull(header);
+      assertTrue(header.startsWith("Basic "));
+      String decoded =
+          new String(
+              Base64.getDecoder().decode(header.substring("Basic ".length())),
+              StandardCharsets.UTF_8);
+      assertEquals(AUTH_USERNAME + ":" + expectedToken, decoded);
+    }
   }
 
   @Test

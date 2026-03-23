@@ -330,13 +330,9 @@ class AbstractRegistryTest {
     }
 
     @Override
-    public String getAuthUsername() {
-      return "testuser";
-    }
-
-    @Override
-    public String getAuthToken() {
-      return "testtoken";
+    public String getAuthorizationHeader(
+        AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange) {
+      return "Basic dGVzdHVzZXI6dGVzdHRva2Vu";
     }
 
     @Override
