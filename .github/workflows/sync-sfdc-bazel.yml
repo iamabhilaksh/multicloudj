@@ -1,0 +1,140 @@
+name: Sync to sfdc-bazel
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'multicloudj PR number to sync'
+        required: true
+        type: string
+      dry_run:
+        description: 'Analyze only — no sync, no PR created'
+        type: boolean
+        default: true
+
+env:
+  SOMA_HOST: git.soma.salesforce.com
+  SOMA_REPO: abhilaksh-sharma/sfdc-bazel     # FORK ONLY — never services/sfdc-bazel
+  SOMA_BRANCH: poc/github-actions-sync        # feature branch of fork
+  SFDC_BAZEL_PATH: /tmp/sfdc-bazel
+
+jobs:
+  sync:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout multicloudj
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: sudo apt-get install -y -qq jq
+
+      - name: Install Salesforce Internal Root CA
+        run: |
+          echo "${{ secrets.SFDC_INTERNAL_ROOT_CA }}" | base64 -d \
+            | sudo tee /usr/local/share/ca-certificates/sfdc-root-ca.crt > /dev/null
+          sudo update-ca-certificates
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 \
+            https://${{ env.SOMA_HOST }}/api/v3)
+          echo "git.soma reachability check: HTTP $HTTP"
+          [[ "$HTTP" == "401" ]] || { echo "FAIL: git.soma unreachable (got $HTTP)"; exit 1; }
+
+      - name: Clone sfdc-bazel fork (poc branch)
+        run: |
+          git config --global credential.helper store
+          echo "https://x-access-token:${{ secrets.SOMA_TOKEN }}@${{ env.SOMA_HOST }}" \
+            > ~/.git-credentials
+          git clone --branch ${{ env.SOMA_BRANCH }} \
+            https://${{ env.SOMA_HOST }}/${{ env.SOMA_REPO }}.git \
+            ${{ env.SFDC_BAZEL_PATH }}
+
+      - name: Determine PR number and mode
+        id: config
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            PR_NUMBER="${{ github.event.inputs.pr_number }}"
+            DRY_RUN="${{ github.event.inputs.dry_run }}"
+          else
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            DRY_RUN="false"
+          fi
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "dry_run=$DRY_RUN" >> $GITHUB_OUTPUT
+          echo "PR number: $PR_NUMBER | Dry run: $DRY_RUN"
+
+      - name: Analyze PR
+        id: analyze
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SFDC_BAZEL_REPO_PATH: ${{ env.SFDC_BAZEL_PATH }}
+        run: |
+          ANALYSIS=$(${{ env.SFDC_BAZEL_PATH }}/tools/multicloudj-sync/analyze-pr.sh \
+            "${{ steps.config.outputs.pr_number }}") || true
+          echo "--- Analysis output ---"
+          echo "$ANALYSIS"
+          echo "--- Parsing fields ---"
+          for key in decision reason gus_id commit_sha pr_title pr_url; do
+            val=$(echo "$ANALYSIS" | jq -r ".${key} // empty" 2>/dev/null || echo "")
+            echo "$key=$val" >> $GITHUB_OUTPUT
+            echo "  $key=$val"
+          done
+
+      - name: Dry run summary
+        if: steps.config.outputs.dry_run == 'true'
+        run: |
+          echo "================================================================"
+          echo "=== DRY RUN — analysis only, no files changed, no PR created ==="
+          echo "================================================================"
+          echo "Decision  : ${{ steps.analyze.outputs.decision }}"
+          echo "Reason    : ${{ steps.analyze.outputs.reason }}"
+          echo "GUS ID    : ${{ steps.analyze.outputs.gus_id }}"
+          echo "Commit SHA: ${{ steps.analyze.outputs.commit_sha }}"
+          echo "PR Title  : ${{ steps.analyze.outputs.pr_title }}"
+          echo "PR URL    : ${{ steps.analyze.outputs.pr_url }}"
+
+      - name: Full sync
+        if: steps.analyze.outputs.decision == 'FULL_AUTO' && steps.config.outputs.dry_run == 'false'
+        env:
+          MULTICLOUDJ_REPO_PATH: ${{ github.workspace }}
+          SFDC_BAZEL_REPO_PATH: ${{ env.SFDC_BAZEL_PATH }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          ${{ env.SFDC_BAZEL_PATH }}/tools/multicloudj-sync.sh \
+            --work-id    "${{ steps.analyze.outputs.gus_id }}" \
+            --no-interactive \
+            --no-pr \
+            --github-pr     "${{ steps.config.outputs.pr_number }}" \
+            --github-pr-url "${{ steps.analyze.outputs.pr_url }}" \
+            "${{ steps.analyze.outputs.commit_sha }}"
+
+      - name: Create PR on sfdc-bazel fork
+        if: steps.analyze.outputs.decision == 'FULL_AUTO' && steps.config.outputs.dry_run == 'false'
+        env:
+          SOMA_TOKEN: ${{ secrets.SOMA_TOKEN }}
+          SOMA_REPO: ${{ env.SOMA_REPO }}
+          SOMA_HOST: ${{ env.SOMA_HOST }}
+        run: |
+          BRANCH=$(git -C ${{ env.SFDC_BAZEL_PATH }} rev-parse --abbrev-ref HEAD)
+          ${{ env.SFDC_BAZEL_PATH }}/tools/multicloudj-sync/create-soma-pr.sh \
+            --title "@${{ steps.analyze.outputs.gus_id }}: ${{ steps.analyze.outputs.pr_title }}" \
+            --head  "$BRANCH" \
+            --base  "main"
+
+      - name: Notify Slack (MANUAL_NEEDED)
+        if: steps.analyze.outputs.decision == 'MANUAL_NEEDED' && steps.config.outputs.dry_run == 'false'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          ${{ env.SFDC_BAZEL_PATH }}/tools/multicloudj-sync/notify-slack.sh \
+            --status     manual \
+            --pr-number  "${{ steps.config.outputs.pr_number }}" \
+            --pr-title   "${{ steps.analyze.outputs.pr_title }}" \
+            --pr-url     "${{ steps.analyze.outputs.pr_url }}" \
+            --gus-id     "${{ steps.analyze.outputs.gus_id }}" \
+            --commit-sha "${{ steps.analyze.outputs.commit_sha }}" \
+            --reason     "${{ steps.analyze.outputs.reason }}"
