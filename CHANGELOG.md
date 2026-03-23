@@ -1,5 +1,112 @@
 # Changelog
 
+## [0.2.29](https://github.com/iamabhilaksh/multicloudj/compare/multicloudj-v0.2.28...multicloudj-v0.2.29) (2026-03-23)
+
+
+### Bug Fixes
+
+* correct changelog to show commits between releases ([#97](https://github.com/iamabhilaksh/multicloudj/issues/97)) ([f41d143](https://github.com/iamabhilaksh/multicloudj/commit/f41d1434b9f407487c4bd500973b72b9f8cf8275))
+* delombok the javadocs generation before releasing docs ([#164](https://github.com/iamabhilaksh/multicloudj/issues/164)) ([d698004](https://github.com/iamabhilaksh/multicloudj/commit/d6980042fb54f1627523abf38bb975050af1ee80))
+* fix the build for iam ([#161](https://github.com/iamabhilaksh/multicloudj/issues/161)) ([3f4c04c](https://github.com/iamabhilaksh/multicloudj/commit/3f4c04c16153abb8df6e859f92baea9cc89f7a32))
+* fix the release javadocs ([#179](https://github.com/iamabhilaksh/multicloudj/issues/179)) ([7ad2ad4](https://github.com/iamabhilaksh/multicloudj/commit/7ad2ad4166da79dbd98887a597905683e434229f))
+* fix the release javadocs ([#182](https://github.com/iamabhilaksh/multicloudj/issues/182)) ([60d1d46](https://github.com/iamabhilaksh/multicloudj/commit/60d1d468d54143a0d46ddb13e7208875cfe3f30e))
+
+
+### Blob Store
+
+* add bucket creation in the blobclient ([#168](https://github.com/iamabhilaksh/multicloudj/issues/168)) ([bd7dc35](https://github.com/iamabhilaksh/multicloudj/commit/bd7dc351390245c67de146f263f54d0afcd6ce09))
+* add checksum support in putobject ([#250](https://github.com/iamabhilaksh/multicloudj/issues/250)) ([7ed72c7](https://github.com/iamabhilaksh/multicloudj/commit/7ed72c70f46c10de5dcc012b95974e3e8e98ec7d))
+* add getTag and setTag apis ([#117](https://github.com/iamabhilaksh/multicloudj/issues/117)) ([942347e](https://github.com/iamabhilaksh/multicloudj/commit/942347ef2ef428f0a19742078349b22df21cf6a9))
+* Add SSE in multi-part upload ([#112](https://github.com/iamabhilaksh/multicloudj/issues/112)) ([32a920f](https://github.com/iamabhilaksh/multicloudj/commit/32a920fb6625cfdd30be6d4c9035429a0ebc2d0b))
+* change validate bucket exists method ([#305](https://github.com/iamabhilaksh/multicloudj/issues/305)) ([720fbf6](https://github.com/iamabhilaksh/multicloudj/commit/720fbf6d78d2791c7ec0c2ab4fe62bf55fd306c4))
+* checksum support for mpu ([#332](https://github.com/iamabhilaksh/multicloudj/issues/332)) ([5a56444](https://github.com/iamabhilaksh/multicloudj/commit/5a564449035f890c2446f5cea204d8719eb525fe))
+* Directory tagging ([#217](https://github.com/iamabhilaksh/multicloudj/issues/217)) ([f331125](https://github.com/iamabhilaksh/multicloudj/commit/f3311255033c454f2b1f179c7059d0f4b52db903))
+* Enable tags in the GcpTransformer ([#127](https://github.com/iamabhilaksh/multicloudj/issues/127)) ([728a632](https://github.com/iamabhilaksh/multicloudj/commit/728a6328721f9e0b146b29ac17b8c75ba8ccabd5))
+* Enable timestamp data in BlobInfo in List api ([#201](https://github.com/iamabhilaksh/multicloudj/issues/201)) ([ca4c96a](https://github.com/iamabhilaksh/multicloudj/commit/ca4c96a6daa1eee8ff7be476cc5cac8a68ec261a))
+* Expose builder option useKmsManagedKey ([#281](https://github.com/iamabhilaksh/multicloudj/issues/281)) ([fafd802](https://github.com/iamabhilaksh/multicloudj/commit/fafd8025baf759740ffa13aa8dba1bfd2dfa92e4))
+* extend retry strategy to GCP ([#298](https://github.com/iamabhilaksh/multicloudj/issues/298)) ([a22c4b0](https://github.com/iamabhilaksh/multicloudj/commit/a22c4b063c7fc84978891a1d89c4d670fb1123d5))
+* fix GCP async client builder for configs ([#123](https://github.com/iamabhilaksh/multicloudj/issues/123)) ([088f0a2](https://github.com/iamabhilaksh/multicloudj/commit/088f0a2be5eb9b5165624167a653540dbcb8d80c))
+* Fix the doGetMetadata blob existence exception ([#341](https://github.com/iamabhilaksh/multicloudj/issues/341)) ([fc428ad](https://github.com/iamabhilaksh/multicloudj/commit/fc428add5b2babcdd36257dbf690117770b64710))
+* fix the retry config for the bucketclient ([#135](https://github.com/iamabhilaksh/multicloudj/issues/135)) ([b3a72e4](https://github.com/iamabhilaksh/multicloudj/commit/b3a72e4178d092e257a5fa5d6580eb9beb72f715))
+* handle the cases for network timeouts, connection timeouts, dns resolution errors ([#273](https://github.com/iamabhilaksh/multicloudj/issues/273)) ([7a7e55b](https://github.com/iamabhilaksh/multicloudj/commit/7a7e55baa48bc64840c78395975c63d192c83866))
+* handle the gcp blobstore endpoint with empty path / ([#263](https://github.com/iamabhilaksh/multicloudj/issues/263)) ([b1a69ec](https://github.com/iamabhilaksh/multicloudj/commit/b1a69ec60aa3a84dff42128db4d84b3044a080f8))
+* Implement the DoesBucketExist for Blob ([#195](https://github.com/iamabhilaksh/multicloudj/issues/195)) ([a6ad1d7](https://github.com/iamabhilaksh/multicloudj/commit/a6ad1d79787e75ec35e6e95f9b72afa3c56b96bf))
+* in memory blobstore for local testing ([#267](https://github.com/iamabhilaksh/multicloudj/issues/267)) ([0391e3a](https://github.com/iamabhilaksh/multicloudj/commit/0391e3a8c6c3e5d51fb4fe7be8bd96a55ac19398))
+* make blob store autocloseable throughout ([#194](https://github.com/iamabhilaksh/multicloudj/issues/194)) ([3610b57](https://github.com/iamabhilaksh/multicloudj/commit/3610b57bac3b9fe27fc1f92c97e19452c31d6a43))
+* Object lock conformance ([#336](https://github.com/iamabhilaksh/multicloudj/issues/336)) ([5a0fb4a](https://github.com/iamabhilaksh/multicloudj/commit/5a0fb4a9ab6a5b8ce9f92d50617f47d17f093969))
+* onboard content-type in upload for all clouds ([#346](https://github.com/iamabhilaksh/multicloudj/issues/346)) ([f9d8080](https://github.com/iamabhilaksh/multicloudj/commit/f9d8080866885edc464b1f1e4cccc65fbb869132))
+* onboard GCS native Multipart Upload ([#228](https://github.com/iamabhilaksh/multicloudj/issues/228)) ([8193069](https://github.com/iamabhilaksh/multicloudj/commit/819306958fb32d5296b5a44b3aef78e21aab6454))
+* onboard retry config in the client and aws ([#113](https://github.com/iamabhilaksh/multicloudj/issues/113)) ([8df8d31](https://github.com/iamabhilaksh/multicloudj/commit/8df8d3169ea65fddb29e997b1b1d32a5c8c5c2d6))
+* override proxy configs ([#318](https://github.com/iamabhilaksh/multicloudj/issues/318)) ([d148a85](https://github.com/iamabhilaksh/multicloudj/commit/d148a85922ce15356d40d7d537f57dfd5e87bf3c))
+* support copy from different source bucket ([#190](https://github.com/iamabhilaksh/multicloudj/issues/190)) ([40e6f4c](https://github.com/iamabhilaksh/multicloudj/commit/40e6f4c270dea745e36ae7e35cc7e04adb7d1d94))
+* Support objectLock in GCP and AWS ([#242](https://github.com/iamabhilaksh/multicloudj/issues/242)) ([f7022e7](https://github.com/iamabhilaksh/multicloudj/commit/f7022e72a86547c42a5bfb556a59919954383832))
+* support tagging for multipart upload in AWS and GCP ([#172](https://github.com/iamabhilaksh/multicloudj/issues/172)) ([25b694b](https://github.com/iamabhilaksh/multicloudj/commit/25b694b041c4d845f6199daa541d637edae88e82))
+* Upgrade the google-cloud-storage version to v2.60.0 ([#211](https://github.com/iamabhilaksh/multicloudj/issues/211)) ([fcb0943](https://github.com/iamabhilaksh/multicloudj/commit/fcb09437f87fb95bd09fad7e89ebaf7b819397c3))
+
+
+### Document Store
+
+* fix the inequality filter scenario in pagination token ([#340](https://github.com/iamabhilaksh/multicloudj/issues/340)) ([f97b58b](https://github.com/iamabhilaksh/multicloudj/commit/f97b58b9decbb239b170093043168e32ef03d41c))
+* release please and fix the test ([#105](https://github.com/iamabhilaksh/multicloudj/issues/105)) ([d7458bd](https://github.com/iamabhilaksh/multicloudj/commit/d7458bd16fc9134a2faa6878d28716f66a3f2ea4))
+* support decoding byte[] ([#338](https://github.com/iamabhilaksh/multicloudj/issues/338)) ([fb1c6f7](https://github.com/iamabhilaksh/multicloudj/commit/fb1c6f79378140dfca992cf79b004f79f6360aa7))
+* test the release ([#101](https://github.com/iamabhilaksh/multicloudj/issues/101)) ([c94e18a](https://github.com/iamabhilaksh/multicloudj/commit/c94e18a270d80c44f4d53773ec9c6003d99ce2c5))
+
+
+### STS
+
+* enable web identity in aws sts and fix gcp get caller id ([#149](https://github.com/iamabhilaksh/multicloudj/issues/149)) ([fe1a50b](https://github.com/iamabhilaksh/multicloudj/commit/fe1a50bbb6d81cfcd629ceb2fface808dba6e752))
+* fix the aws web identity token provider overrider ([#283](https://github.com/iamabhilaksh/multicloudj/issues/283)) ([4146d97](https://github.com/iamabhilaksh/multicloudj/commit/4146d97c77f236e04fe8b2f192ae113a1fe07123))
+* Make STS client anynomous for web identity ([#157](https://github.com/iamabhilaksh/multicloudj/issues/157)) ([a705153](https://github.com/iamabhilaksh/multicloudj/commit/a7051537ca4b91eb76ac1c531385b68b1423a8a4))
+* remove the scoped requirement for all credentials ([#177](https://github.com/iamabhilaksh/multicloudj/issues/177)) ([3dacf2f](https://github.com/iamabhilaksh/multicloudj/commit/3dacf2f287add77d97bf4e75f0a3764bcd17c7db))
+* support access boundary in aws and gcp sts  ([#240](https://github.com/iamabhilaksh/multicloudj/issues/240)) ([8157a56](https://github.com/iamabhilaksh/multicloudj/commit/8157a56fa8364457994183b3eebecae82c973460))
+* support web identity tokens in gcp sts ([#249](https://github.com/iamabhilaksh/multicloudj/issues/249)) ([abe66c5](https://github.com/iamabhilaksh/multicloudj/commit/abe66c5e227929fa84e0760408185276a7878ef7))
+
+
+### PubSub
+
+* add getAttributes for gcp pubsub ([#120](https://github.com/iamabhilaksh/multicloudj/issues/120)) ([228ab6f](https://github.com/iamabhilaksh/multicloudj/commit/228ab6fda6f7ad7f963ef3c676cac513c4d62520))
+* add send and receive apis for AWS SQS ([#125](https://github.com/iamabhilaksh/multicloudj/issues/125)) ([37f1e07](https://github.com/iamabhilaksh/multicloudj/commit/37f1e072b9d557b6903738a331e4b52be5c79713))
+* Add SNS publish API ([#226](https://github.com/iamabhilaksh/multicloudj/issues/226)) ([f157be9](https://github.com/iamabhilaksh/multicloudj/commit/f157be93ab45f6172ae96a1233bd68350b440d7a))
+* add the no-arg constructor ([#339](https://github.com/iamabhilaksh/multicloudj/issues/339)) ([bdba4b4](https://github.com/iamabhilaksh/multicloudj/commit/bdba4b43aadf4c50c5416c015e3a567e12e3438e))
+* Enable getAttributes in AWS  ([#171](https://github.com/iamabhilaksh/multicloudj/issues/171)) ([8226127](https://github.com/iamabhilaksh/multicloudj/commit/8226127814424524198ddf372af5508f3f78771c))
+* Enable implicit GetQueueUrl on initialization ([#183](https://github.com/iamabhilaksh/multicloudj/issues/183)) ([30af604](https://github.com/iamabhilaksh/multicloudj/commit/30af6040ee9dc2549f80b0627ee1097fe4017088))
+* Enable sendAck and sendNack apis for AWS Pubsub ([#134](https://github.com/iamabhilaksh/multicloudj/issues/134)) ([957db97](https://github.com/iamabhilaksh/multicloudj/commit/957db97f87f2f9cc32701f202fef6b5f34a86703))
+* ensure atleast 1 message is pulled ([#197](https://github.com/iamabhilaksh/multicloudj/issues/197)) ([599a538](https://github.com/iamabhilaksh/multicloudj/commit/599a538eb9702be0872ea61cdf4240963bd6638b))
+* expose raw message delivery option for client ([#238](https://github.com/iamabhilaksh/multicloudj/issues/238)) ([681dcd0](https://github.com/iamabhilaksh/multicloudj/commit/681dcd09db18db96f85454d78be9ebf89f393c5c))
+* fix client initialization in GCP ([#148](https://github.com/iamabhilaksh/multicloudj/issues/148)) ([6b08244](https://github.com/iamabhilaksh/multicloudj/commit/6b082442d20e49ebfc8f6714d95edec280ea0fb5))
+* remove timeout while receiving from a subscription ([#180](https://github.com/iamabhilaksh/multicloudj/issues/180)) ([6c8b9dc](https://github.com/iamabhilaksh/multicloudj/commit/6c8b9dc609865fd71c5428eb1059201fc5981780))
+* support parsing sns messages in SQS subscription ([#231](https://github.com/iamabhilaksh/multicloudj/issues/231)) ([e355c22](https://github.com/iamabhilaksh/multicloudj/commit/e355c22308e932c8688bfd27a0fcbd81b470f9af))
+
+
+### IAM
+
+* add conformance tests for IAM Identity Management APIs for GCP ([#186](https://github.com/iamabhilaksh/multicloudj/issues/186)) ([3a5f83c](https://github.com/iamabhilaksh/multicloudj/commit/3a5f83cbd4d9740be77417b3da460109a1d12872))
+* added iam conformance tests for AWS ([#234](https://github.com/iamabhilaksh/multicloudj/issues/234)) ([463c43b](https://github.com/iamabhilaksh/multicloudj/commit/463c43bb348ef6c30e9caa1ffac603092f3bd901))
+* driver layer contract for IAM ([#122](https://github.com/iamabhilaksh/multicloudj/issues/122)) ([c929930](https://github.com/iamabhilaksh/multicloudj/commit/c929930f041f7de4b2e8129d372be7beabeb5850))
+* fix bugs in AWS IAM ([#311](https://github.com/iamabhilaksh/multicloudj/issues/311)) ([e741a87](https://github.com/iamabhilaksh/multicloudj/commit/e741a87378b1ff059633b5ad548a4004a5d7a781))
+* getInlinePolicyDetails API(GCP) ([#163](https://github.com/iamabhilaksh/multicloudj/issues/163)) ([5472da6](https://github.com/iamabhilaksh/multicloudj/commit/5472da6ce2ea0fb6d2cc6b7f2574619726e51d9e))
+* implement AWS IAM policy APIs ([#259](https://github.com/iamabhilaksh/multicloudj/issues/259)) ([6a6b4f3](https://github.com/iamabhilaksh/multicloudj/commit/6a6b4f324cc67a09e36ce39b2f8aa68731a52f09))
+* implement AWS policy APIs and conformance tests ([#279](https://github.com/iamabhilaksh/multicloudj/issues/279)) ([34fceac](https://github.com/iamabhilaksh/multicloudj/commit/34fceac6425de3db9cd94ebb3a8016962f5cf466))
+* implement getInlinePolicyDetails API for AWS Substrate ([#233](https://github.com/iamabhilaksh/multicloudj/issues/233)) ([a591aeb](https://github.com/iamabhilaksh/multicloudj/commit/a591aeb0ddb7f58adc09564c2072edae1efd6200))
+* implement IAM Identity Management APIs for GCP ([#142](https://github.com/iamabhilaksh/multicloudj/issues/142)) ([4bcd1d7](https://github.com/iamabhilaksh/multicloudj/commit/4bcd1d712cac1efdaa4fe22d267603b8b84c1cbe))
+* implement identity APIs for AWS substrate ([#225](https://github.com/iamabhilaksh/multicloudj/issues/225)) ([470fb75](https://github.com/iamabhilaksh/multicloudj/commit/470fb757a966d5008aeb956805d5e4ca3c931472))
+* implement policy related APIs(GCP) ([#141](https://github.com/iamabhilaksh/multicloudj/issues/141)) ([9f0d5a1](https://github.com/iamabhilaksh/multicloudj/commit/9f0d5a18e8069f35d07778c872db252be8ac394d))
+* implement substrate neutral policy document model ([#327](https://github.com/iamabhilaksh/multicloudj/issues/327)) ([03f6a8c](https://github.com/iamabhilaksh/multicloudj/commit/03f6a8ca172c72b8af37222db26b699ca8478db2))
+* Onboard examples for IAM APIs  ([#277](https://github.com/iamabhilaksh/multicloudj/issues/277)) ([cd82264](https://github.com/iamabhilaksh/multicloudj/commit/cd822647c4a863192b9415f418288951f8720c09))
+* onboarding client layer for IAM ([#90](https://github.com/iamabhilaksh/multicloudj/issues/90)) ([a57e09d](https://github.com/iamabhilaksh/multicloudj/commit/a57e09deb11eae6e0c3abe28a33f912729131d2e))
+* reuse single ObjectMapper instance to reduce overhead in GCP IAM ([#261](https://github.com/iamabhilaksh/multicloudj/issues/261)) ([c6ea753](https://github.com/iamabhilaksh/multicloudj/commit/c6ea753f0493eb8236200e9c640708589cb60f2c))
+
+
+### DB Backup Restore
+
+* add examples ([#301](https://github.com/iamabhilaksh/multicloudj/issues/301)) ([7d3c34b](https://github.com/iamabhilaksh/multicloudj/commit/7d3c34b14e594a807283c58b8932074e7c908f94))
+* add KMS encryption key and status message support to database restore ([#303](https://github.com/iamabhilaksh/multicloudj/issues/303)) ([07fcf88](https://github.com/iamabhilaksh/multicloudj/commit/07fcf8809081cb9df3e3476069b05cc2bc49c9d8))
+
+
+### Code Refactoring
+
+* converge to a single patter for type safety ([#130](https://github.com/iamabhilaksh/multicloudj/issues/130)) ([3511698](https://github.com/iamabhilaksh/multicloudj/commit/351169864f0268c568150ce1d56dd35734ea5ba8))
+
 ## [0.2.28](https://github.com/salesforce/multicloudj/compare/multicloudj-v0.2.27...multicloudj-v0.2.28) (2026-03-17)
 
 
