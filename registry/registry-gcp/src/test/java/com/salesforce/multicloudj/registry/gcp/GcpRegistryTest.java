@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.api.gax.rpc.ApiException;
@@ -24,6 +25,8 @@ import com.salesforce.multicloudj.registry.driver.AuthChallenge;
 import com.salesforce.multicloudj.registry.driver.BearerTokenExchange;
 import java.io.IOException;
 import java.util.Date;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -210,24 +213,48 @@ class GcpRegistryTest {
       when(scopedCredentials.getAccessToken()).thenReturn(accessToken);
       mockedStatic.when(GoogleCredentials::getApplicationDefault).thenReturn(mockCredentials);
 
+      BearerTokenExchange mockTokenExchange = mock(BearerTokenExchange.class);
+      when(mockTokenExchange.getBearerToken(any(), anyString(), anyString(), any()))
+          .thenReturn("registry-bearer-token");
+
       GcpRegistry registry =
-          new GcpRegistry.Builder().withRegistryEndpoint(TEST_REGISTRY_ENDPOINT).build();
+          new GcpRegistry(
+              new GcpRegistry.Builder().withRegistryEndpoint(TEST_REGISTRY_ENDPOINT),
+              mockTokenExchange);
 
       AuthChallenge challenge =
           AuthChallenge.parse(
               "Bearer realm=\"https://oauth2.googleapis.com/token\","
                   + "service=\"us-central1-docker.pkg.dev\"");
-      BearerTokenExchange mockTokenExchange = mock(BearerTokenExchange.class);
-      when(mockTokenExchange.getBearerToken(any(), anyString(), anyString(), any()))
-          .thenReturn("registry-bearer-token");
 
-      String header =
-          registry.getAuthorizationHeader(challenge, "my-repo/my-image", mockTokenExchange);
+      String header = registry.getAuthorizationHeader(challenge, "my-repo/my-image");
 
       assertNotNull(header);
       assertEquals("Bearer registry-bearer-token", header);
 
       registry.close();
+    }
+  }
+
+  @Test
+  void testClose_ClosesTokenHttpClientAndOciClient() throws Exception {
+    try (MockedStatic<GoogleCredentials> mockedStatic = mockStatic(GoogleCredentials.class);
+        MockedStatic<HttpClients> mockedHttpClients = mockStatic(HttpClients.class)) {
+      GoogleCredentials mockCredentials = mock(GoogleCredentials.class);
+      GoogleCredentials scopedCredentials = mock(GoogleCredentials.class);
+      when(mockCredentials.createScoped(anyList())).thenReturn(scopedCredentials);
+      mockedStatic.when(GoogleCredentials::getApplicationDefault).thenReturn(mockCredentials);
+
+      CloseableHttpClient mockTokenClient = mock(CloseableHttpClient.class);
+      mockedHttpClients.when(HttpClients::createDefault).thenReturn(mockTokenClient);
+      // OciHttpTransport uses HttpClients.custom() — delegate to the real implementation
+      mockedHttpClients.when(HttpClients::custom).thenCallRealMethod();
+
+      GcpRegistry registry =
+          new GcpRegistry.Builder().withRegistryEndpoint(TEST_REGISTRY_ENDPOINT).build();
+      registry.close();
+
+      verify(mockTokenClient).close();
     }
   }
 

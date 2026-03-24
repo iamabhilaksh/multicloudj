@@ -11,9 +11,7 @@ public interface RegistryAuthenticator {
    *
    * @param challenge the auth challenge discovered from the registry's WWW-Authenticate response
    * @param repository the repository name (used for bearer token scope)
-   * @param tokenExchange utility for OAuth2 bearer token exchange, if needed
    * @return the Authorization header value, or null for anonymous (no auth) access
    */
-  String getAuthorizationHeader(
-      AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange);
+  String getAuthorizationHeader(AuthChallenge challenge, String repository);
 }

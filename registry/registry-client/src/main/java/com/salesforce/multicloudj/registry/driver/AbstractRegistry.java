@@ -51,8 +51,7 @@ public abstract class AbstractRegistry implements Provider, AutoCloseable, Regis
   protected abstract OciHttpTransport getOciTransport();
 
   @Override
-  public abstract String getAuthorizationHeader(
-      AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange);
+  public abstract String getAuthorizationHeader(AuthChallenge challenge, String repository);
 
   /**
    * Returns the list of HTTP request interceptors to be registered with the HTTP client. Override

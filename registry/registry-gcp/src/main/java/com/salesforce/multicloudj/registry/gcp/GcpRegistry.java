@@ -18,6 +18,8 @@ import com.salesforce.multicloudj.registry.driver.OciHttpTransport;
 import java.io.IOException;
 import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 /**
  * GCP Artifact Registry implementation.
@@ -38,6 +40,8 @@ public class GcpRegistry extends AbstractRegistry {
   private final Object credentialsLock = new Object();
 
   private final OciHttpTransport ociClient;
+  private final CloseableHttpClient tokenHttpClient;
+  private final BearerTokenExchange tokenExchange;
 
   /** Lazily initialized credentials with double-checked locking. */
   private volatile GoogleCredentials credentials;
@@ -47,9 +51,25 @@ public class GcpRegistry extends AbstractRegistry {
   }
 
   public GcpRegistry(Builder builder) {
+    this(builder, null);
+  }
+
+  GcpRegistry(Builder builder, BearerTokenExchange tokenExchange) {
     super(builder);
-    this.ociClient =
-        registryEndpoint != null ? new OciHttpTransport(registryEndpoint, this) : null;
+    if (registryEndpoint != null) {
+      this.ociClient = new OciHttpTransport(registryEndpoint, this);
+      if (tokenExchange != null) {
+        this.tokenHttpClient = null;
+        this.tokenExchange = tokenExchange;
+      } else {
+        this.tokenHttpClient = HttpClients.createDefault();
+        this.tokenExchange = new BearerTokenExchange(this.tokenHttpClient);
+      }
+    } else {
+      this.ociClient = null;
+      this.tokenHttpClient = null;
+      this.tokenExchange = null;
+    }
   }
 
   @Override
@@ -63,10 +83,10 @@ public class GcpRegistry extends AbstractRegistry {
   }
 
   @Override
-  public String getAuthorizationHeader(
-      AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange) {
+  public String getAuthorizationHeader(AuthChallenge challenge, String repository) {
     String identityToken = getAuthToken();
-    String bearerToken = tokenExchange.getBearerToken(challenge, identityToken, repository, "pull");
+    String bearerToken =
+        tokenExchange.getBearerToken(challenge, identityToken, repository, "pull");
     return "Bearer " + bearerToken;
   }
 
@@ -146,6 +166,9 @@ public class GcpRegistry extends AbstractRegistry {
   public void close() throws Exception {
     if (ociClient != null) {
       ociClient.close();
+    }
+    if (tokenHttpClient != null) {
+      tokenHttpClient.close();
     }
   }
 

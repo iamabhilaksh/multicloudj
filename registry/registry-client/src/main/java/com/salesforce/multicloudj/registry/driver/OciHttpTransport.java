@@ -54,7 +54,6 @@ public class OciHttpTransport implements AutoCloseable {
   private final String registryEndpoint;
   private final CloseableHttpClient httpClient;
   private final RegistryAuthenticator authenticator;
-  private final BearerTokenExchange tokenExchange;
 
   /** Lock for thread-safe lazy initialization of cachedChallenge. */
   private final Object challengeLock = new Object();
@@ -95,7 +94,6 @@ public class OciHttpTransport implements AutoCloseable {
       }
       this.httpClient = builder.build();
     }
-    this.tokenExchange = new BearerTokenExchange(this.httpClient);
   }
 
   /**
@@ -120,7 +118,7 @@ public class OciHttpTransport implements AutoCloseable {
       return null;
     }
 
-    return authenticator.getAuthorizationHeader(cachedChallenge, repository, tokenExchange);
+    return authenticator.getAuthorizationHeader(cachedChallenge, repository);
   }
 
   /**

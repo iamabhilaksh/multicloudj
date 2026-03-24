@@ -19,7 +19,6 @@ import com.salesforce.multicloudj.common.exceptions.SubstrateSdkException;
 import com.salesforce.multicloudj.common.exceptions.UnAuthorizedException;
 import com.salesforce.multicloudj.common.exceptions.UnknownException;
 import com.salesforce.multicloudj.registry.driver.AuthChallenge;
-import com.salesforce.multicloudj.registry.driver.BearerTokenExchange;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
@@ -184,9 +183,8 @@ class AwsRegistryTest {
 
     try (AwsRegistry registry = createRegistryWithMockEcrClient(mockEcrClient)) {
       AuthChallenge challenge = AuthChallenge.parse("Basic realm=\"ecr\"");
-      BearerTokenExchange tokenExchange = mock(BearerTokenExchange.class);
 
-      String header = registry.getAuthorizationHeader(challenge, "my-repo", tokenExchange);
+      String header = registry.getAuthorizationHeader(challenge, "my-repo");
 
       assertNotNull(header);
       assertTrue(header.startsWith("Basic "));

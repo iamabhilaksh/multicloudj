@@ -330,8 +330,7 @@ class AbstractRegistryTest {
     }
 
     @Override
-    public String getAuthorizationHeader(
-        AuthChallenge challenge, String repository, BearerTokenExchange tokenExchange) {
+    public String getAuthorizationHeader(AuthChallenge challenge, String repository) {
       return "Basic dGVzdHVzZXI6dGVzdHRva2Vu";
     }
 
