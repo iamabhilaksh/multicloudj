@@ -122,6 +122,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -1502,6 +1504,8 @@ public class GcpBlobStore extends AbstractBlobStore {
   public static class Builder extends AbstractBlobStore.Builder<GcpBlobStore, Builder> {
     private static final int DEFAULT_MAX_CONNECTIONS = 50;
 
+    private static final int PREWARM_CONNECTIONS = 4;
+
     private Storage storage;
     private MultipartUploadClient mpuClient;
     private TransferManager transferManager;
@@ -1622,6 +1626,40 @@ public class GcpBlobStore extends AbstractBlobStore {
       }
 
       return storageOptionsBuilder.build().getService();
+    }
+
+    /**
+     * Opens PREWARM_CONNECTIONS connections in the Apache HC pool by dispatching cheap
+     * concurrent list() calls. Eliminates TCP slow-start cost on the first N user requests.
+     * Fire-and-forget; pre-warm failures are non-fatal — the first real op will surface any
+     * actual configuration error.
+     */
+    private static void prewarmConnectionPool(Storage storage, String bucket) {
+      if (bucket == null || bucket.isEmpty()) {
+        return;
+      }
+      ExecutorService executor =
+          Executors.newFixedThreadPool(
+              PREWARM_CONNECTIONS,
+              r -> {
+                Thread t = new Thread(r, "gcp-blob-pool-warmer");
+                t.setDaemon(true);
+                return t;
+              });
+      try {
+        for (int i = 0; i < PREWARM_CONNECTIONS; i++) {
+          executor.submit(
+              () -> {
+                try {
+                  storage.list(bucket, Storage.BlobListOption.pageSize(1));
+                } catch (RuntimeException e) {
+                  logger.debug("connection pool pre-warm probe failed (non-fatal)", e);
+                }
+              });
+        }
+      } finally {
+        executor.shutdown();
+      }
     }
 
     /** Helper function for generating the MultipartUpload client */
@@ -1755,6 +1793,7 @@ public class GcpBlobStore extends AbstractBlobStore {
       if (transferManager == null) {
         transferManager = buildTransferManager(this, storage);
       }
+      prewarmConnectionPool(storage, getBucket());
       return new GcpBlobStore(this, storage, mpuClient, transferManager);
     }
   }

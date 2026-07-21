@@ -466,9 +466,11 @@ public abstract class AbstractBlobBenchmarkTest {
       }
     }
 
+    String includeFilter =
+        System.getProperty("jmhInclude", ".*" + this.getClass().getName() + ".*");
     Options opt =
         new OptionsBuilder()
-            .include(".*" + this.getClass().getName() + ".*")
+            .include(includeFilter)
             .forks(1)
             .resultFormat(ResultFormatType.JSON)
             .result("target/jmh-sync-results-" + getProviderId() + ".json")
